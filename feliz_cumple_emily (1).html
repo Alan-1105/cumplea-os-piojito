@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feliz Cumpleaños Emily</title>
+  <style>
+    /* Fondo animado */
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: 'Comic Sans MS', cursive;
+      text-align: center;
+      background: linear-gradient(270deg, #ffdde1, #ee9ca7, #fbc2eb, #a18cd1);
+      background-size: 800% 800%;
+      animation: gradiente 20s ease infinite;
+    }
+
+    @keyframes gradiente {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Mensaje inicial */
+    #pantalla-inicial {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+
+    #pantalla-inicial h1, #pantalla-inicial h2 {
+      color: #ff4081;
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+      margin: 10px;
+      animation: aparecer 2s ease forwards;
+    }
+
+    @keyframes aparecer {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    #btn-comenzar {
+      background: #ff66b2;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 1.2em;
+      border-radius: 30px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: 0.3s;
+    }
+
+    #btn-comenzar:hover {
+      background: #ff4081;
+      transform: scale(1.1);
+    }
+
+    /* Imagen de Emily con marco animado */
+    #imagen-emily {
+      position: absolute;
+      top: 120px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 260px;
+      height: auto;
+      border-radius: 20px;
+      border: 5px solid transparent;
+      background: linear-gradient(45deg, #ff4081, #ffe600, #33ccff, #ff66b2);
+      background-size: 300% 300%;
+      animation: marcoAnimado 6s linear infinite;
+      padding: 5px;
+      z-index: 500;
+    }
+
+    @keyframes marcoAnimado {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Globos */
+    .globo {
+      position: absolute;
+      width: 60px;
+      height: 80px;
+      border-radius: 50% 50% 45% 45%;
+      background: radial-gradient(circle at 30% 30%, #fff, var(--color));
+      cursor: pointer;
+      animation: subir 6s linear infinite;
+      z-index: 300;
+    }
+
+    @keyframes subir {
+      from { transform: translateY(100vh); opacity: 1; }
+      to { transform: translateY(-120px); opacity: 0; }
+    }
+
+    /* Pastel */
+    #pastel {
+      position: absolute;
+      bottom: 120px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 220px;
+      height: 220px;
+      display: none;
+      z-index: 600;
+    }
+
+    /* Texto pide un deseo */
+    #pide-deseo {
+      position: absolute;
+      bottom: 350px;
+      width: 100%;
+      font-size: 1.5em;
+      color: #ff6600;
+      display: none;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+      z-index: 800;
+    }
+
+    /* Mensaje final */
+    #mensaje-final {
+      position: absolute;
+      top: 40px;
+      width: 100%;
+      font-size: 2.5em;
+      font-weight: bold;
+      color: #ff4081;
+      display: none;
+      text-shadow: 0 0 10px #ff1493, 0 0 20px #ff69b4;
+      z-index: 900;
+    }
+
+    /* Confeti */
+    .confeti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: var(--confeti-color);
+      animation: caerConfeti 3s linear infinite;
+    }
+
+    @keyframes caerConfeti {
+      from { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      to { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+    }
+
+    /* Mensajes dinámicos */
+    #mensaje-dinamico {
+      position: absolute;
+      bottom: 30px;
+      width: 100%;
+      font-size: 1.4em;
+      color: #fff;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <!-- Pantalla inicial con mensajes -->
+  <div id="pantalla-inicial">
+    <h1>Te deseo una vida llena de logros y viajes</h1>
+    <h2>Felices 18 tqm</h2>
+    <button id="btn-comenzar">Comenzar celebración</button>
+  </div>
+
+  <!-- Imagen de Emily -->
+  <img id="imagen-emily" src="emily.jpg.jpg" alt="Emily">
+
+  <!-- Texto pide deseo -->
+  <div id="pide-deseo">✨ Pide un deseo ✨</div>
+
+  <!-- Pastel -->
+  <canvas id="pastel"></canvas>
+
+  <!-- Mensaje final -->
+  <div id="mensaje-final">¡Feliz Cumpleaños Emily!</div>
+
+  <!-- Mensaje dinámico durante el juego -->
+  <div id="mensaje-dinamico"></div>
+
+  <script>
+    const popSound = new Audio('sonidos/pop.mp3');
+    const soplidoSound = new Audio('sonidos/soplido.mp3');
+    const cumpleañosSong = new Audio('sonidos/cumpleaños.mp3');
+    cumpleañosSong.loop = true;
+
+    let score = 0;
+    let juegoIniciado = false;
+    const mensajeDinamico = document.getElementById('mensaje-dinamico');
+
+    document.getElementById('btn-comenzar').addEventListener('click', () => {
+      document.getElementById('pantalla-inicial').style.display = 'none';
+      juegoIniciado = true;
+      mostrarMensajeDinamico('¡Sigue explotando globos! 🎈');
+    });
+
+    function mostrarMensajeDinamico(texto) {
+      mensajeDinamico.textContent = texto;
+      mensajeDinamico.style.opacity = 1;
+      setTimeout(() => mensajeDinamico.style.opacity = 0, 3000);
+    }
+
+    function crearGlobo() {
+      if (!juegoIniciado) return;
+      const globo = document.createElement('div');
+      globo.classList.add('globo');
+      const colores = ['#ff4d4d', '#ffcc00', '#33cc33', '#3399ff', '#ff66b2'];
+      globo.style.setProperty('--color', colores[Math.floor(Math.random() * colores.length)]);
+      globo.style.left = Math.random() * (window.innerWidth - 60) + 'px';
+
+      globo.addEventListener('click', () => {
+        popSound.currentTime = 0;
+        popSound.play();
+        score++;
+        globo.remove();
+
+        if (score === 5) mostrarMensajeDinamico('Cada globo cuenta para tu deseo 🎈');
+        if (score === 10) mostrarMensajeDinamico('Estás cerca de desbloquear tu sorpresa 🎂');
+        if (score === 18) mostrarPastel();
+      });
+
+      document.body.appendChild(globo);
+      setTimeout(() => globo.remove(), 6000);
+    }
+
+    function mostrarPastel() {
+      document.getElementById('pastel').style.display = 'block';
+      document.getElementById('pide-deseo').style.display = 'block';
+      mostrarMensajeDinamico('Ya puedes pedir tu deseo y soplar la vela ✨');
+      dibujarPastel();
+    }
+
+    function apagarVela() {
+      soplidoSound.currentTime = 0;
+      soplidoSound.play();
+      document.getElementById('pide-deseo').style.display = 'none';
+      cumpleañosSong.play();
+      mostrarMensajeFinal();
+    }
+
+    function mostrarMensajeFinal() {
+      const mensaje = document.getElementById('mensaje-final');
+      mensaje.style.display = 'block';
+      mostrarMensajeDinamico('¡Feliz Cumpleaños Emily! 🎉 Que se cumplan todos tus deseos');
+      setTimeout(() => mostrarMensajeDinamico('Este es solo el comienzo de algo increíble 💖'), 4000);
+      lanzarConfeti();
+    }
+
+    function lanzarConfeti() {
+      setInterval(() => {
+        const confeti = document.createElement('div');
+        confeti.classList.add('confeti');
+        const colores = ['#ff4081', '#ffcc00', '#33cc33', '#3399ff', '#ff66b2'];
+        confeti.style.setProperty('--confeti-color', colores[Math.floor(Math.random() * colores.length)]);
+        confeti.style.left = Math.random() * window.innerWidth + 'px';
+        document.body.appendChild(confeti);
+        setTimeout(() => confeti.remove(), 3000);
+      }, 150);
+    }
+
+    function dibujarPastel() {
+      const canvas = document.getElementById('pastel');
+      const ctx = canvas.getContext('2d');
+      canvas.width = 220;
+      canvas.height = 220;
+
+      // Base pastel
+      ctx.fillStyle = '#ffb347';
+      ctx.fillRect(30, 140, 160, 50);
+      ctx.fillStyle = '#ffcc99';
+      ctx.fillRect(50, 90, 120, 50);
+
+      // Vela
+      ctx.fillStyle = '#ffcc80';
+      ctx.fillRect(105, 40, 10, 50);
+
+      canvas.addEventListener('mousedown', apagarVela);
+    }
+
+    setInterval(crearGlobo, 1000);
+  </script>
+</body>
+</html>
